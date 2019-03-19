@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"flag"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"os"
@@ -13,29 +12,30 @@ import (
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gorilla/mux"
 )
 
-// Structures of users
-type Person struct {
-	Username  string  `json:"username"`
-	FirstName string  `json:"firstname"`
-	LastName  string  `json:"lastname"`
-	Address   Address `json:"address"`
-}
+type Worker struct {
+	Username string `json:"username" xorm:"pk not null unique"`
 
-type Address struct {
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
+
 	City     string `json:"city"`
 	Division string `json:"division"`
-}
 
-type Worker struct {
-	Person
 	Position string `json:"position"`
 	Salary   int    `json:"salary"`
+
+	CreatedAt int `xorm:"created"`
+	UpdatedAt int `xorm:"updated"`
+	DeletedAt int `xorm:"deleted"`
+	Version   int `xorm:"version"`
 }
 
 // List of workers and authenticated users
-var Workers = make(map[string]Worker)
+var Workers []Worker
 var authUser = make(map[string]string)
 
 var srvr http.Server
@@ -60,9 +60,6 @@ func WelcomeToAppsCode(w http.ResponseWriter, r *http.Request) {
 
 	w.WriteHeader(http.StatusOK)
 }
-
-
-
 
 func ShowAllWorkers(w http.ResponseWriter, r *http.Request) {
 
@@ -141,7 +138,6 @@ func UpdateWorkerProfile(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 
-
 	if _, exist := Workers[params["username"]]; !exist {
 		w.WriteHeader(http.StatusNotFound)
 		w.Write([]byte("404 - Username Doesn't Exist"))
@@ -188,44 +184,47 @@ func DeleteWorker(w http.ResponseWriter, r *http.Request) {
 // Creating initial worker profiles
 func CreateInitialWorkerProfile() {
 	worker := Worker{
-		Person: Person{Username: "masud",
-			FirstName: "Masudur",
-			LastName:  "Rahman",
-			Address:   Address{City: "Madaripur", Division: "Dhaka"}},
-		Position: "Software Engineer",
-		Salary:   55,
+		Username:  "masud",
+		FirstName: "Masudur",
+		LastName:  "Rahman",
+		City:      "Madaripur",
+		Division:  "Dhaka",
+		Position:  "Software Engineer",
+		Salary:    55,
 	}
-	Workers["masud"] = worker
+	Workers = append(Workers, worker)
 
 	worker = Worker{
-		Person: Person{Username: "fahim",
-			FirstName: "Fahim",
-			LastName:  "Abrar",
-			Address:   Address{City: "Chittagong", Division: "Chittagong"}},
+		Username:  "fahim",
+		FirstName: "Fahim",
+		LastName:  "Abrar",
+		City:      "Chittagong", Division: "Chittagong",
 		Position: "Software Engineer",
 		Salary:   55,
 	}
-	Workers["fahim"] = worker
+	Workers = append(Workers, worker)
 
 	worker = Worker{
-		Person: Person{Username: "tahsin",
-			FirstName: "Tahsin",
-			LastName:  "Rahman",
-			Address:   Address{City: "Chittagong", Division: "Chittagong"}},
-		Position: "Software Engineer",
-		Salary:   55,
+		Username:  "tahsin",
+		FirstName: "Tahsin",
+		LastName:  "Rahman",
+		City:      "Chittagong",
+		Division:  "Chittagong",
+		Position:  "Software Engineer",
+		Salary:    55,
 	}
-	Workers["tahsin"] = worker
+	Workers = append(Workers, worker)
 
 	worker = Worker{
-		Person: Person{Username: "jenny",
-			FirstName: "Jannatul",
-			LastName:  "Ferdows",
-			Address:   Address{City: "Chittagong", Division: "Chittagong"}},
-		Position: "Software Engineer",
-		Salary:   55,
+		Username:  "jenny",
+		FirstName: "Jannatul",
+		LastName:  "Ferdows",
+		City:      "Chittagong",
+		Division:  "Chittagong",
+		Position:  "Software Engineer",
+		Salary:    55,
 	}
-	Workers["jenny"] = worker
+	Workers = append(Workers, worker)
 
 	authUser["masud"] = "pass"
 	authUser["admin"] = "admin"
@@ -233,7 +232,7 @@ func CreateInitialWorkerProfile() {
 }
 
 func basicAuth(r *http.Request) (string, bool) {
-	if byPass{
+	if byPass {
 		return "", true
 	}
 	authHeader := r.Header.Get("Authorization")
@@ -276,7 +275,7 @@ func StartTheApp() {
 	log.Println("Starting the server...!")
 
 	var wait time.Duration
-	flag.DurationVar(&wait, "graceful-timeout", time.Second * 15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
+	flag.DurationVar(&wait, "graceful-timeout", time.Second*15, "the duration for which the server gracefully wait for existing connections to finish - e.g. 15s or 1m")
 	flag.Parse()
 
 	CreateInitialWorkerProfile()
@@ -305,12 +304,11 @@ func StartTheApp() {
 		}
 	}()
 
-
 	// Channel to interrupt the server from keyboard
 	channel := make(chan os.Signal, 1)
 
 	signal.Notify(channel, os.Interrupt)
-	<- channel
+	<-channel
 
 	ctx, cancel := context.WithTimeout(context.Background(), wait)
 	defer cancel()
@@ -326,18 +324,3 @@ func StartTheApp() {
 
 	os.Exit(0)
 }
-
-/*
-func main2() {
-	router := mux.NewRouter()
-
-	CreateInitialWorkerProfile()
-
-	router.HandleFunc("/appscode/workers", ShowAllWorkers).Methods("GET")
-	router.HandleFunc("/appscode/workers/{username}", ShowSinigleWorker).Methods("GET")
-	router.HandleFunc("/appscode/workers", AddNewWorker).Methods("POST")
-	router.HandleFunc("/appscode/workers/{username}", UpdateWorkerProfile).Methods("PUT")
-	router.HandleFunc("/appscode/workers/{username}", DeleteWorker).Methods("DELETE")
-
-	log.Fatal(http.ListenAndServe(":8080", router))
-}*/
