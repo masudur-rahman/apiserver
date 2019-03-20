@@ -6,27 +6,21 @@ An API Server containing the worker profile. Source code was written in golang. 
 ## Run apiserver - from SourceCode
 
 At first we need to get something to run the api server.
-#### Prerequisites
-
-`go get -u github.com/gorilla/mux`
-
-`go get -u github.com/spf13/cobra/cobra`
-
-
 
 #### Main commands
-`$ go build` - to build api
-`$ ./apiserver --help` - to get basic commands of the api
+`$ go install` - to install the api api
 
-`$ ./apiserver start` - to start the server
+`$ apiserver --help` - to get basic commands of the api
 
-`$ ./apiserver version` - to get api version
+`$ apiserver start` - to start the server
 
-`$ ./apiserver start --help` - to get to know about flags associated with start
+`$ apiserver version` - to get api version
 
-`$ ./apiserver start --bypass true` - to get a bypass authorization
+`$ apiserver start --help` - to get to know about flags associated with start
 
-`$ ./apiserver start --port 8080 --stopTime 5` - to assign a port to run and to set time to stop the server
+`$ apiserver start --bypass true` - to get a bypass authorization
+
+`$ apiserver start --port 8080 --stopTime 5` - to assign a port to run and to set time to stop the server
 
  
 
@@ -42,7 +36,7 @@ At first we need to get something to run the api server.
 
 ## Upload to docker hub
 
-`docker push masudjuly02/appscodeserver:busybox`
+`docker push masudjuly02/apiserver:v1alpha1`
 
 i.e. : `docker push <user-name>/<image-name>:<tag>` - if tag is not provided :<tag> can be omitted...
 

@@ -2,12 +2,44 @@
 
 
 [[projects]]
-  digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
-  name = "github.com/gorilla/mux"
+  digest = "1:b67d9fb93495f20c1650448395a35d8c8a05cc1744bdd9986f5bc69d5d114f22"
+  name = "github.com/Unknwon/com"
   packages = ["."]
   pruneopts = "UT"
-  revision = "a7962380ca08b5a188038c69871b8d3fbdf31e89"
-  version = "v1.7.0"
+  revision = "41959bdd855fb7db467f78865d5f9044507df1cd"
+  version = "v2"
+
+[[projects]]
+  branch = "master"
+  digest = "1:bdb17865b13e720add16eaa212872b4306c8521f367c7a7ff2c10cef1e7afdb1"
+  name = "github.com/go-macaron/inject"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "d8a0b8677191f4380287cfebd08e462217bac7ad"
+
+[[projects]]
+  digest = "1:43c0f7d28e1d4359041ef2d2ed2e37f599a6c623b1c59aac0d04da2fda29bbb3"
+  name = "github.com/go-xorm/builder"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1d658d7596c25394aab557ef5b50ef35bf706384"
+  version = "v0.3.4"
+
+[[projects]]
+  digest = "1:04021679f3d7777dc38fdc8760ead2b09dc7bf7ae1077ad415d11f68495bd74e"
+  name = "github.com/go-xorm/core"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "ccc80c1adf1f6172bbc548877f50a1163041a40a"
+  version = "v0.6.2"
+
+[[projects]]
+  digest = "1:4f01359acf1d4bc0aade06dcfca6f7687516f54fbf70b467fe90057c614647f5"
+  name = "github.com/go-xorm/xorm"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1f39c590c64924f358c0d89016ac9b2bb84e9125"
+  version = "v0.7.1"
 
 [[projects]]
   digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
@@ -16,6 +48,17 @@
   pruneopts = "UT"
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
+
+[[projects]]
+  digest = "1:8ef506fc2bb9ced9b151dafa592d4046063d744c646c1bbe801982ce87e4bc24"
+  name = "github.com/lib/pq"
+  packages = [
+    ".",
+    "oid",
+  ]
+  pruneopts = "UT"
+  revision = "4ded0e9383f75c197b3a2aaa6d590ac52df6fd79"
+  version = "v1.0.0"
 
 [[projects]]
   digest = "1:645cabccbb4fa8aab25a956cbcbdf6a6845ca736b2c64e197ca7cbb9d210b939"
@@ -33,12 +76,38 @@
   revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
   version = "v1.0.3"
 
+[[projects]]
+  branch = "master"
+  digest = "1:f92f6956e4059f6a3efc14924d2dd58ba90da25cc57fe07ae3779ef2f5e0c5f2"
+  name = "golang.org/x/crypto"
+  packages = ["pbkdf2"]
+  pruneopts = "UT"
+  revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
+
+[[projects]]
+  digest = "1:d37c61a335d13bc49b3f90e9e13c8686e4548839b69c58549e727afb2245c454"
+  name = "gopkg.in/ini.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "c85607071cf08ca1adaf48319cd1aa322e81d8c1"
+  version = "v1.42.0"
+
+[[projects]]
+  digest = "1:3d43a1d68f315a1c4c2cd20ee4d35c96695f17637502366341ac43b7813ea95f"
+  name = "gopkg.in/macaron.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "dfcb80ca86e8534962c62812efd93209c7e600e7"
+  version = "v1.3.2"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
-    "github.com/gorilla/mux",
+    "github.com/go-xorm/xorm",
+    "github.com/lib/pq",
     "github.com/spf13/cobra",
+    "gopkg.in/macaron.v1",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
