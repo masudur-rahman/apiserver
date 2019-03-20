@@ -94,15 +94,6 @@ func WelcomeToAppsCode(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowAllWorkers(w http.ResponseWriter, r *http.Request) {
-
-	if info, valid := basicAuth(r); !valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		if _, err := w.Write([]byte(info)); err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	var workers []Worker
 	if err := engine.Find(&workers); err != nil {
 		log.Println(err)
@@ -118,14 +109,6 @@ func ShowAllWorkers(w http.ResponseWriter, r *http.Request) {
 }
 
 func ShowSingleWorker(ctx *macaron.Context, w http.ResponseWriter, r *http.Request) {
-	if info, valid := basicAuth(r); !valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		if _, err := w.Write([]byte(info)); err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	worker := new(Worker)
 	worker.Username = ctx.Params("username")
 	exist, err := engine.Get(worker)
@@ -148,15 +131,6 @@ func ShowSingleWorker(ctx *macaron.Context, w http.ResponseWriter, r *http.Reque
 }
 
 func AddNewWorker(w http.ResponseWriter, r *http.Request) {
-
-	if info, valid := basicAuth(r); !valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		if _, err := w.Write([]byte(info)); err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	var worker Worker
 	if err := json.NewDecoder(r.Body).Decode(&worker); err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -224,15 +198,6 @@ func AddNewWorker(w http.ResponseWriter, r *http.Request) {
 }
 
 func UpdateWorkerProfile(ctx *macaron.Context, w http.ResponseWriter, r *http.Request) {
-
-	if info, valid := basicAuth(r); !valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		if _, err := w.Write([]byte(info)); err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	worker := new(Worker)
 	worker.Username = ctx.Params("username")
 	exist, err := engine.Get(worker)
@@ -309,14 +274,6 @@ func UpdateWorkerProfile(ctx *macaron.Context, w http.ResponseWriter, r *http.Re
 }
 
 func DeleteWorker(ctx *macaron.Context, w http.ResponseWriter, r *http.Request) {
-	if info, valid := basicAuth(r); !valid {
-		w.WriteHeader(http.StatusUnauthorized)
-		if _, err := w.Write([]byte(info)); err != nil {
-			log.Println(err)
-		}
-		return
-	}
-
 	worker := new(Worker)
 	worker.Username = ctx.Params("username")
 	exist, err := engine.Get(worker)
@@ -438,13 +395,13 @@ func CreateInitialWorkerProfile() {
 
 }
 
-func basicAuth(r *http.Request) (string, bool) {
+func basicAuth(ctx *macaron.Context) (bool, []byte) {
 	if byPass {
-		return "", true
+		return true, nil
 	}
-	authHeader := r.Header.Get("Authorization")
+	authHeader := ctx.Req.Header.Get("Authorization")
 	if authHeader == "" {
-		return "Error: Authorization Needed...!", false
+		return false, []byte("Authorization Needed...!")
 	}
 
 	authInfo := strings.SplitN(authHeader, " ", 2)
@@ -452,22 +409,22 @@ func basicAuth(r *http.Request) (string, bool) {
 	userInfo, err := base64.StdEncoding.DecodeString(authInfo[1])
 
 	if err != nil {
-		return "Error: Error while decoding...!", false
+		return false, []byte("Error while decoding...!")
 	}
 	userPass := strings.SplitN(string(userInfo), ":", 2)
 
 	if len(userPass) != 2 {
-		return "Error: Authorization failed...!", false
+		return false, []byte("Authorization failed...!")
 	}
 
 	if pass, exist := authUser[userPass[0]]; exist {
 		if pass != userPass[1] {
-			return "Error: Unauthorized User", false
+			return false, []byte("Unauthorized User")
 		} else {
-			return "Success: Authorization Successful...!!", true
+			return true, nil
 		}
 	} else {
-		return "Error: Unauthorized User...!", false
+		return false, []byte("Authorization failed...!")
 	}
 }
 
@@ -488,8 +445,6 @@ func StartTheApp() {
 	srvr.ReadTimeout = time.Second * 15
 	srvr.IdleTimeout = time.Second * 60
 
-	srvr.Addr = "0.0.0.0:8080"
-
 	srvr.Handler = m
 
 	StartXormEngine()
@@ -505,6 +460,16 @@ func StartTheApp() {
 			m.Put("/:username", UpdateWorkerProfile)
 			m.Delete("/:username", DeleteWorker)
 		})
+	})
+
+	m.Use(func(ctx *macaron.Context) {
+
+		if authorized, errMsg := basicAuth(ctx); !authorized {
+			ctx.Resp.WriteHeader(http.StatusUnauthorized)
+			if _, err := ctx.Resp.Write(errMsg); err != nil {
+				log.Println(err)
+			}
+		}
 	})
 
 	log.Println("Starting the server")
